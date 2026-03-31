@@ -185,15 +185,17 @@ export async function registerRoutes(
   // ─── AI ASSISTANT ───
   app.post("/api/ai/chat", async (req, res) => {
     try {
-      const { messages } = req.body;
+      console.log("AI chat request body:", JSON.stringify(req.body).slice(0, 200));
+      const { messages } = req.body || {};
       if (!messages || !Array.isArray(messages)) {
         return res.status(400).json({ error: "Messages array required" });
       }
       const response = await chatWithAI(messages);
+      console.log("AI chat response length:", response?.length);
       res.json({ response });
     } catch (err: any) {
-      console.error("AI chat error:", err.message);
-      res.status(500).json({ error: "AI service unavailable" });
+      console.error("AI chat error:", err.message, err.stack);
+      res.status(500).json({ error: "AI service unavailable", detail: err.message });
     }
   });
 
@@ -202,8 +204,8 @@ export async function registerRoutes(
       const coaching = await getDealCoaching(req.body);
       res.json({ coaching });
     } catch (err: any) {
-      console.error("Deal coaching error:", err.message);
-      res.status(500).json({ error: "AI service unavailable" });
+      console.error("Deal coaching error:", err.message, err.stack);
+      res.status(500).json({ error: "AI service unavailable", detail: err.message });
     }
   });
 
